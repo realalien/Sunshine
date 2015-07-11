@@ -16,16 +16,17 @@
 
 package com.example.xms.sunshine;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-
-import com.example.xms.sunshine.R;
+import android.widget.TextView;
 
 public class DetailActivity extends ActionBarActivity {
 
@@ -57,6 +58,8 @@ public class DetailActivity extends ActionBarActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent settingActivity = new Intent(this, SettingsActivity.class);
+            startActivity(settingActivity);
             return true;
         }
 
@@ -76,6 +79,14 @@ public class DetailActivity extends ActionBarActivity {
                                  Bundle savedInstanceState) {
 
             View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
+
+            // Get the message from the intent
+            Intent intent = getActivity().getIntent();
+            String message = intent.getStringExtra(Intent.EXTRA_TEXT);
+
+            TextView tv = (TextView)rootView.findViewById(R.id.detail_weather_text);
+            tv.setText(message);
+            Log.i(this.getClass().toString(), message);
             return rootView;
         }
     }

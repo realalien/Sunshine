@@ -1,6 +1,6 @@
 package com.example.xms.sunshine;
 
-import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -16,7 +16,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -64,10 +63,16 @@ public class ForcastFragment extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Context context = getActivity(); //Q: why not "view.getContext();" ? A:
+                /* Toast call*/
+//                Context context = getActivity(); //Q: why not "view.getContext();" ? A:
+//                String item = mListItemAdapter.getItem(position);
+//                Toast toast = Toast.makeText(context, item, Toast.LENGTH_SHORT);
+//                toast.show();
+
                 String item = mListItemAdapter.getItem(position);
-                Toast toast = Toast.makeText(context, item, Toast.LENGTH_SHORT);
-                toast.show();
+                Intent detailActivity = new Intent(getActivity(), DetailActivity.class)
+                        .putExtra(Intent.EXTRA_TEXT, item);
+                startActivity(detailActivity);
             }
         });
 
