@@ -1,9 +1,11 @@
 package com.example.xms.sunshine;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.text.format.Time;
 import android.util.Log;
@@ -38,6 +40,7 @@ import java.util.Arrays;
 public class ForcastFragment extends Fragment {
 
     ArrayAdapter<String> mListItemAdapter;
+    public static final String PREFS_NAME = "MyPrefsFile";
 
     public ForcastFragment() {
     }
@@ -57,7 +60,7 @@ public class ForcastFragment extends Fragment {
         mListItemAdapter = new ArrayAdapter(getActivity(), R.layout.list_item_forcast, R.id.list_item_forcast_textview,weekForcast);
         ListView listView = (ListView)rootView.findViewById(R.id.listview_forcast);
         listView.setAdapter(mListItemAdapter);
-        //Q: why overriding the onCreateOptionsMenu instead of inflating here? A:
+        //Q: why overriding the onCreateOptionsMenu insteaƒd of inflating here? A:
 
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -95,7 +98,7 @@ public class ForcastFragment extends Fragment {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_refresh) {
-            new FetchWeatherForcastTask().execute("94043");
+            updateWeather();
 
             return true;
         }
@@ -103,6 +106,20 @@ public class ForcastFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
+
+    private void updateWeather() {
+        FetchWeatherForcastTask weatherTask = new FetchWeatherForcastTask();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String location = prefs.getString(getString(R.string.pref_location_key),
+                getString(R.string.pref_location_default));
+        weatherTask.execute(location);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        updateWeather();
+    }
 
     /*
      *
@@ -232,6 +249,16 @@ public class ForcastFragment extends Fragment {
          * Prepare the weather high/lows for presentation.
          */
         private String formatHighLows(double high, double low) {
+            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            String unitType = pref.getString(getString(R.string.pref_temperature_unit_key), getString(R.string.pref_temperature_unit_metric));
+
+            if (unitType.equals(getString(R.string.pref_temperature_unit_imperial))) {
+                high = (high *1.8) + 32;
+                low = (low *1.8) + 32;
+            } else if (! unitType.equals(getString(R.string.pref_temperature_unit_metric))) {
+                Log.e(LOG_TAG, "Unit type not found: " + unitType);
+            }
+
             // For presentation, assume the user doesn't care about tenths of a degree.
             long roundedHigh = Math.round(high);
             long roundedLow = Math.round(low);
